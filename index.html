@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyDayMyStep - Content Matrix</title>
+    <title>MyDayMyStep - Content Matrix (Transposed)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -31,7 +31,7 @@
         
         .poster {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             box-shadow: 0 20px 60px rgba(1, 21, 136, 0.12);
@@ -41,10 +41,10 @@
             border: 1px solid #e2e8f0;
         }
         
-        /* 桌面端矩阵布局 */
+        /* 行列对调后的网格：第一列是Week，后面7列是星期几 */
         .matrix-grid {
             display: grid;
-            grid-template-columns: 100px repeat(5, 1fr);
+            grid-template-columns: 100px repeat(7, 1fr);
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -53,35 +53,39 @@
             background: var(--sw-light);
             border-bottom: 2px solid var(--sw-accent);
             border-right: 1px solid #cbd5e1;
-            padding: 12px 8px;
+            padding: 12px 4px;
             text-align: center;
             font-weight: 700;
             color: var(--sw-primary);
-            min-width: 120px;
+            min-width: 110px;
+            font-size: 12px;
         }
         
-        .week-label { font-size: 11px; color: var(--sw-accent); text-transform: uppercase; letter-spacing: 0.05em; }
-        .week-range { font-size: 10px; color: #64748b; font-weight: 600; }
+        .week-label { font-size: 10px; color: var(--sw-accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .week-range { font-size: 9px; color: #64748b; font-weight: 600; }
         
-        .day-label {
+        /* 行标签（现在是 Week 1-5） */
+        .row-label {
             background: var(--sw-primary);
             color: white;
             border-right: 2px solid var(--sw-accent);
             border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 16px 0;
+            padding: 16px 4px;
             position: sticky;
             left: 0;
             z-index: 30;
+            min-width: 100px;
         }
         
-        .day-label.weekend { background: #1e3a8a; color: #94a3b8; }
+        .row-label.week5 { background: #1e3a8a; } /* Week 5 特殊样式 */
         
         .cell {
             border-right: 1px solid #e2e8f0;
@@ -91,14 +95,14 @@
             flex-direction: column;
             gap: 6px;
             position: relative;
-            min-height: 140px;
-            min-width: 120px;
+            min-height: 160px;
+            min-width: 110px;
             background: white;
         }
         
         .cell.weekend { background: #fafbfc; }
         .cell.milestone { background: #EFF6FF; box-shadow: inset 0 0 0 2px var(--sw-accent); }
-        .cell-empty { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #e2e8f0 10px, #e2e8f0 20px); opacity: 0.6; }
+        .cell.empty { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #e2e8f0 10px, #e2e8f0 20px); opacity: 0.4; }
         
         /* 筛选栏样式 */
         .filter-section {
@@ -145,7 +149,6 @@
         .filter-btn:active { transform: scale(0.95); }
         .filter-btn.active { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
         
-        /* Platform 筛选按钮 */
         .filter-btn.all { color: var(--sw-primary); border-color: var(--sw-primary); }
         .filter-btn.all.active { background: var(--sw-primary); color: white; }
         
@@ -155,7 +158,6 @@
         .filter-btn.red { color: #FF2442; border-color: #FF2442; }
         .filter-btn.red.active { background: #FF2442; color: white; }
         
-        /* Pillar 筛选按钮 */
         .filter-btn.p1 { color: var(--p1-color); border-color: var(--p1-color); }
         .filter-btn.p1.active { background: var(--p1-color); color: white; }
         
@@ -301,17 +303,12 @@
         }
         
         /* 响应式适配 */
-        
-        /* 平板适配 */
         @media (max-width: 1024px) {
-            .matrix-grid { grid-template-columns: 80px repeat(5, minmax(140px, 1fr)); }
-            .header-cell { min-width: 140px; padding: 10px 6px; }
-            .cell { min-width: 140px; min-height: 120px; }
-            .content-title { font-size: 11px; }
-            .content-sub { font-size: 9px; }
+            .matrix-grid { grid-template-columns: 80px repeat(7, minmax(130px, 1fr)); }
+            .header-cell { min-width: 130px; font-size: 11px; }
+            .cell { min-width: 130px; min-height: 140px; }
         }
         
-        /* 移动端适配 */
         @media (max-width: 768px) {
             body { padding: 0; }
             .poster { border-radius: 0; border: none; }
@@ -319,64 +316,57 @@
             .scroll-hint { display: block; }
             
             .matrix-grid { 
-                grid-template-columns: 70px repeat(5, 160px); 
+                grid-template-columns: 70px repeat(7, 150px); 
                 overflow-x: scroll;
                 scroll-snap-type: x mandatory;
-                -webkit-overflow-scrolling: touch;
             }
             
-            .day-label { 
+            .row-label { 
                 font-size: 11px; 
-                padding: 12px 0; 
+                padding: 12px 2px; 
                 position: sticky; 
                 left: 0; 
                 z-index: 30;
                 box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+                min-width: 70px;
             }
             
             .header-cell { 
-                min-width: 160px; 
-                padding: 10px 4px;
+                min-width: 150px; 
+                padding: 8px 2px;
                 scroll-snap-align: start;
+                font-size: 11px;
             }
             
             .cell { 
-                min-width: 160px; 
+                min-width: 150px; 
                 min-height: 130px;
                 scroll-snap-align: start;
             }
             
             .filter-section { padding: 10px; gap: 10px; }
             .filter-group { gap: 6px; }
-            .filter-btn { 
-                padding: 5px 10px; 
-                font-size: 11px; 
-                border-radius: 14px;
-            }
+            .filter-btn { padding: 5px 10px; font-size: 11px; border-radius: 14px; }
             .filter-label { font-size: 10px; }
             
             .content-card { padding: 6px 8px; }
             .content-title { font-size: 11px; padding-left: 10px; }
-            .content-sub { font-size: 9px; padding-left: 10px; display: none; } /* 移动端隐藏副标题节省空间 */
+            .content-sub { display: none; } /* 移动端隐藏副标题 */
             .scene-tag { margin-left: 10px; font-size: 7px; }
             .pillar-tag { width: 18px; height: 18px; font-size: 8px; }
             
             .legend { padding: 10px; gap: 12px; font-size: 10px; }
-            .legend-item { gap: 4px; }
             
-            /* 顶部标题简化 */
             .header-title h1 { font-size: 13px !important; }
             .header-title p { display: none; }
         }
         
-        /* 超小屏幕 */
         @media (max-width: 380px) {
-            .matrix-grid { grid-template-columns: 60px repeat(5, 140px); }
-            .header-cell, .cell { min-width: 140px; }
+            .matrix-grid { grid-template-columns: 60px repeat(7, 130px); }
+            .header-cell, .cell { min-width: 130px; }
             .filter-btn { padding: 4px 8px; font-size: 10px; }
         }
         
-        /* 触摸设备优化 */
         @media (hover: none) {
             .content-card:hover { transform: none; }
             .content-card:active { transform: scale(0.98); }
@@ -392,7 +382,7 @@
             <div class="w-8 h-8 md:w-9 md:h-9 bg-white text-[#011588] rounded font-bold text-xs md:text-sm flex items-center justify-center shrink-0">SW</div>
             <div class="header-title">
                 <h1 class="text-sm md:text-base font-bold tracking-wide truncate">#MyDayMyStep Content Matrix</h1>
-                <p class="text-[10px] text-blue-200 hidden md:block">4 Pillars | Platform Filter | KV Launch Apr 30</p>
+                <p class="text-[10px] text-blue-200 hidden md:block">Transposed View | Week as Row, Day as Column</p>
             </div>
         </div>
         <div class="flex items-center gap-3 md:gap-6 text-xs">
@@ -429,56 +419,67 @@
 
     <!-- 移动端滚动提示 -->
     <div class="scroll-hint md:hidden">
-        ← Swipe left or right to view the full matrix→
+        ← 左右滑动查看完整矩阵 →
     </div>
 
-    <!-- 矩阵主体 -->
+    <!-- 矩阵主体 - 行列对调版本 -->
     <div class="matrix-grid">
-        <!-- 表头 -->
+        <!-- 表头：第一列空白，后面是星期几 -->
         <div class="header-cell" style="background:#011588;color:white;position:sticky;left:0;z-index:40;">
-            <span class="text-xs font-bold">DAY</span>
+            <span class="text-xs font-bold">WEEK</span>
         </div>
         <div class="header-cell">
-            <div class="week-label">Week 1</div>
-            <div class="week-range">Apr 15-21</div>
+            <div class="week-label">Monday</div>
+            <div class="week-range">Mon</div>
         </div>
         <div class="header-cell">
-            <div class="week-label">Week 2</div>
-            <div class="week-range">Apr 22-28</div>
-        </div>
-        <div class="header-cell" style="position:relative;background:#DBEAFE;">
-            <div class="week-label" style="color:#011588;">Week 3</div>
-            <div class="week-range">Apr 29-May 5</div>
-            <div class="absolute top-1 right-1 text-[8px] font-bold text-[#011588] bg-white px-1.5 py-0.5 rounded-full">★ KV</div>
+            <div class="week-label">Tuesday</div>
+            <div class="week-range">Tue</div>
         </div>
         <div class="header-cell">
-            <div class="week-label">Week 4</div>
-            <div class="week-range">May 6-12</div>
+            <div class="week-label">Wednesday</div>
+            <div class="week-range">Wed</div>
         </div>
         <div class="header-cell">
-            <div class="week-label">Week 5</div>
-            <div class="week-range">May 13-15</div>
+            <div class="week-label">Thursday</div>
+            <div class="week-range">Thu</div>
+        </div>
+        <div class="header-cell">
+            <div class="week-label">Friday</div>
+            <div class="week-range">Fri</div>
+        </div>
+        <div class="header-cell" style="background:#f1f5f9;">
+            <div class="week-label" style="color:#64748b;">Saturday</div>
+            <div class="week-range">Sat</div>
+        </div>
+        <div class="header-cell" style="background:#f1f5f9;">
+            <div class="week-label" style="color:#64748b;">Sunday</div>
+            <div class="week-range">Sun</div>
         </div>
 
-        <!-- Monday -->
-        <div class="day-label">Mon</div>
+        <!-- Week 1 行 (Apr 15-21) -->
+        <div class="row-label">
+            <span>Week 1</span>
+            <span class="text-[10px] font-normal text-blue-200 mt-1">Apr 15-21</span>
+        </div>
         
+        <!-- Mon -->
         <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: Morning ritual, campaign tone-setter">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
                 <span class="pillar-tag pillar-p1">P1</span>
                 <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
                 <div class="content-title">Morning Ritual</div>
                 <div class="content-sub">Campaign tone-setter</div>
                 <span class="scene-tag">☕ Commute</span>
             </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: Meeting runs long">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
                 <span class="pillar-tag pillar-p3">P3</span>
                 <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
                 <div class="content-title">Office Reality</div>
                 <div class="content-sub">Extended meetings</div>
                 <span class="scene-tag">💼 Office</span>
             </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p1" data-full="P1 Commuting: First-person morning">
+            <div class="content-card card-red" data-platform="red" data-pillar="p1">
                 <span class="pillar-tag pillar-p1">P1</span>
                 <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
                 <div class="content-title">早晨的辦公桌前</div>
@@ -486,116 +487,17 @@
                 <span class="scene-tag">📝 Commute</span>
             </div>
         </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: 3 days until launch">
-                <span class="pillar-tag pillar-p1">P1</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Commute Countdown</div>
-                <div class="content-sub">Launch anticipation</div>
-                <span class="scene-tag">🚇 Dynamic</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Miranda-style confidence">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
-                <div class="content-title">Power Dressing</div>
-                <div class="content-sub">Career confidence</div>
-                <span class="scene-tag">👔 Emotional</span>
-            </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Career milestone">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">升职那天</div>
-                <div class="content-sub">Career milestone</div>
-                <span class="scene-tag">🎉 Promotion</span>
-            </div>
-        </div>
-
-        <div class="cell milestone">
-            <div class="milestone-star">★</div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: Final countdown">
-                <span class="pillar-tag pillar-p1">P1</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Final Countdown</div>
-                <div class="content-sub">24h to launch</div>
-                <span class="scene-tag">⏰ Countdown</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Building excitement">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Workplace Hype</div>
-                <div class="content-sub">Career excitement</div>
-                <span class="scene-tag">💼 Resonance</span>
-            </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Career hook">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">優雅無需妥協</div>
-                <div class="content-sub">Career assertion</div>
-                <span class="scene-tag">📝 Identity</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: Technical showcase">
-                <span class="pillar-tag pillar-p3">P3</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Vinnie Close-Up</div>
-                <div class="content-sub">Ergonomic support</div>
-                <span class="scene-tag">👟 Comfort</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Validation moment">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Win Moment</div>
-                <div class="content-sub">Emotional validation</div>
-                <span class="scene-tag">✨ Resonance</span>
-            </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Deadline victory">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">Submitted. 5:47 AM</div>
-                <div class="content-sub">Deadline triumph</div>
-                <span class="scene-tag">🌙 Dedication</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Career transition">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Resilience Story</div>
-                <div class="content-sub">Career transition</div>
-                <span class="scene-tag">🌱 Growth</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Final conversion">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
-                <div class="content-title">Final Push</div>
-                <div class="content-sub">No compromise</div>
-                <span class="scene-tag">🎯 CTA</span>
-            </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p4" data-full="P4 Versatility: Full day documentation">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">記錄香港的一整天</div>
-                <div class="content-sub">Day-to-night flow</div>
-                <span class="scene-tag">📸 Versatile</span>
-            </div>
-        </div>
-
-        <!-- Tuesday -->
-        <div class="day-label">Tue</div>
         
+        <!-- Tue -->
         <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: IFC commute">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
                 <span class="pillar-tag pillar-p1">P1</span>
                 <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
                 <div class="content-title">IFC Commute</div>
                 <div class="content-sub">Urban mobility</div>
                 <span class="scene-tag">🏙️ Dynamic</span>
             </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Harbour sunset">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
                 <span class="pillar-tag pillar-p4">P4</span>
                 <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
                 <div class="content-title">Golden Hour</div>
@@ -603,9 +505,101 @@
                 <span class="scene-tag">🌅 Day-to-Night</span>
             </div>
         </div>
-
+        
+        <!-- Wed -->
         <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Evening win moment">
+            <div class="content-card card-red" data-platform="red" data-pillar="p3">
+                <span class="pillar-tag pillar-p3">P3</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">下午3點，開了4個鐘會</div>
+                <div class="content-sub">Extended comfort</div>
+                <span class="scene-tag">😮‍💨 Endurance</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">End of Day</div>
+                <div class="content-sub">Day-to-night</div>
+                <span class="scene-tag">🌆 Transition</span>
+            </div>
+        </div>
+        
+        <!-- Thu -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
+                <span class="pillar-tag pillar-p1">P1</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Taikoo Place</div>
+                <div class="content-sub">Urban mobility</div>
+                <span class="scene-tag">☕ Dynamic</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Promotion Reflection</div>
+                <div class="content-sub">Career depth</div>
+                <span class="scene-tag">💭 Resonance</span>
+            </div>
+        </div>
+        
+        <!-- Fri -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">Deadline Day</div>
+                <div class="content-sub">5:47 AM win</div>
+                <span class="scene-tag">🏆 Emotional</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Day-to-Night</div>
+                <div class="content-sub">All day wear</div>
+                <span class="scene-tag">🌅 Versatile</span>
+            </div>
+        </div>
+        
+        <!-- Sat -->
+        <div class="cell weekend empty"></div>
+        
+        <!-- Sun -->
+        <div class="cell weekend empty"></div>
+
+        <!-- Week 2 行 (Apr 22-28) -->
+        <div class="row-label">
+            <span>Week 2</span>
+            <span class="text-[10px] font-normal text-blue-200 mt-1">Apr 22-28</span>
+        </div>
+        
+        <!-- Mon -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
+                <span class="pillar-tag pillar-p1">P1</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Commute Countdown</div>
+                <div class="content-sub">Launch anticipation</div>
+                <span class="scene-tag">🚇 Dynamic</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
+                <div class="content-title">Power Dressing</div>
+                <div class="content-sub">Career confidence</div>
+                <span class="scene-tag">👔 Emotional</span>
+            </div>
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">升职那天</div>
+                <div class="content-sub">Career milestone</div>
+                <span class="scene-tag">🎉 Promotion</span>
+            </div>
+        </div>
+        
+        <!-- Tue -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
                 <span class="pillar-tag pillar-p4">P4</span>
                 <div class="card-header"><span>IG 17:00</span><span class="format-badge">Reels</span></div>
                 <div class="content-title">Win Moment</div>
@@ -613,25 +607,118 @@
                 <span class="scene-tag">✨ Versatile</span>
             </div>
         </div>
+        
+        <!-- Wed -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p3">
+                <span class="pillar-tag pillar-p3">P3</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">辦公室的舒適</div>
+                <div class="content-sub">All day comfort</div>
+                <span class="scene-tag">☕ Ergonomic</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Evening Social</div>
+                <div class="content-sub">LKF transition</div>
+                <span class="scene-tag">🍸 Social</span>
+            </div>
+        </div>
+        
+        <!-- Thu -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
+                <span class="pillar-tag pillar-p1">P1</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Transition Energy</div>
+                <div class="content-sub">New mobility</div>
+                <span class="scene-tag">🌱 Dynamic</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
+                <div class="content-title">Resilience Complete</div>
+                <div class="content-sub">Growth story</div>
+                <span class="scene-tag">🦋 Emotional</span>
+            </div>
+        </div>
+        
+        <!-- Fri -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">朝早中環，夜晚蘭桂坊</div>
+                <div class="content-sub">Seamless switch</div>
+                <span class="scene-tag">🍷 Versatile</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
+                <span class="pillar-tag pillar-p1">P1</span>
+                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Campaign Tease</div>
+                <div class="content-sub">Final teaser</div>
+                <span class="scene-tag">🔥 Anticipation</span>
+            </div>
+        </div>
+        
+        <!-- Sat -->
+        <div class="cell weekend empty"></div>
+        
+        <!-- Sun -->
+        <div class="cell weekend empty"></div>
 
+        <!-- Week 3 行 (Apr 29-May 5) - KV Week -->
+        <div class="row-label" style="background:#1e40af;">
+            <span>Week 3 ★</span>
+            <span class="text-[10px] font-normal text-blue-200 mt-1">Apr 29-May 5</span>
+        </div>
+        
+        <!-- Mon -->
+        <div class="cell milestone">
+            <div class="milestone-star">★</div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
+                <span class="pillar-tag pillar-p1">P1</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Final Countdown</div>
+                <div class="content-sub">24h to launch</div>
+                <span class="scene-tag">⏰ Countdown</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Workplace Hype</div>
+                <div class="content-sub">Career excitement</div>
+                <span class="scene-tag">💼 Resonance</span>
+            </div>
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">優雅無需妥協</div>
+                <div class="content-sub">Career assertion</div>
+                <span class="scene-tag">📝 Identity</span>
+            </div>
+        </div>
+        
+        <!-- Tue - KV Launch Day (Apr 30) -->
         <div class="cell milestone" style="position:relative;">
             <div style="position:absolute;inset:0;background:#DBEAFE;opacity:0.3;z-index:0;"></div>
             <div class="milestone-star" style="width:24px;height:24px;font-size:14px;z-index:10;">★</div>
             <div style="position:relative;z-index:5;display:flex;flex-direction:column;gap:6px;">
-                <div class="content-card card-key" data-platform="ig" data-pillar="kv" data-full="MAIN KV LAUNCH">
+                <div class="content-card card-key" data-platform="ig" data-pillar="kv">
                     <div class="card-header"><span>KV 07:00</span><span class="format-badge">LAUNCH</span></div>
                     <div class="content-title">#MyDayMyStep LIVE</div>
                     <div class="content-sub">Hero creative drops</div>
                     <span class="scene-tag">🚀 APR 30</span>
                 </div>
-                <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: 5 shoes guide">
+                <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
                     <span class="pillar-tag pillar-p3">P3</span>
                     <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
                     <div class="content-title">5 Shoes Guide</div>
                     <div class="content-sub">Professional comfort</div>
                     <span class="scene-tag">📚 Comfort</span>
                 </div>
-                <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Career highlight">
+                <div class="content-card card-red" data-platform="red" data-pillar="p2">
                     <span class="pillar-tag pillar-p2">P2</span>
                     <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
                     <div class="content-title">升职那天站在窗前</div>
@@ -640,86 +727,17 @@
                 </div>
             </div>
         </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Styling guide">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Styling Guide</div>
-                <div class="content-sub">All day versatility</div>
-                <span class="scene-tag">👗 Versatile</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Own your success">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Promotion Story</div>
-                <div class="content-sub">Own your success</div>
-                <span class="scene-tag">💼 Resonance</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Evening elegance">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Evening Elegance</div>
-                <div class="content-sub">Night view</div>
-                <span class="scene-tag">🌃 Night</span>
-            </div>
-            <div class="content-card card-key" data-platform="ig" data-pillar="kv" data-full="Campaign Finale">
-                <div class="card-header"><span>FINALE 17:00</span><span class="format-badge">Hero</span></div>
-                <div class="content-title">Campaign Finale</div>
-                <div class="content-sub">HK journey</div>
-                <span class="scene-tag">🎬 May 14</span>
-            </div>
-        </div>
-
-        <!-- Wednesday -->
-        <div class="day-label">Wed</div>
         
+        <!-- Wed -->
         <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p3" data-full="P3 Office Comfort: 4-hour meeting marathon">
-                <span class="pillar-tag pillar-p3">P3</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">下午3點，開了4個鐘會</div>
-                <div class="content-sub">Extended comfort</div>
-                <span class="scene-tag">😮‍💨 Endurance</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: End of day transition">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">End of Day</div>
-                <div class="content-sub">Day-to-night</div>
-                <span class="scene-tag">🌆 Transition</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p3" data-full="P3 Office Comfort: Long meeting comfort">
-                <span class="pillar-tag pillar-p3">P3</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">辦公室的舒適</div>
-                <div class="content-sub">All day comfort</div>
-                <span class="scene-tag">☕ Ergonomic</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: LKF evening social">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Evening Social</div>
-                <div class="content-sub">LKF transition</div>
-                <span class="scene-tag">🍸 Social</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Day-to-night launch">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
                 <span class="pillar-tag pillar-p4">P4</span>
                 <div class="card-header"><span>IG 17:00</span><span class="format-badge">Reels</span></div>
                 <div class="content-title">Day-to-Night Launch</div>
                 <div class="content-sub">Seamless switch</div>
                 <span class="scene-tag">🌗 Versatile</span>
             </div>
-            <div class="content-card card-red" data-platform="red" data-pillar="p4" data-full="P4 Versatility: Full day documentation">
+            <div class="content-card card-red" data-platform="red" data-pillar="p4">
                 <span class="pillar-tag pillar-p4">P4</span>
                 <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
                 <div class="content-title">記錄香港的一整天</div>
@@ -727,79 +745,17 @@
                 <span class="scene-tag">📖 Versatile</span>
             </div>
         </div>
-
-        <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: UGC showcase">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">UGC Showcase</div>
-                <div class="content-sub">Community love</div>
-                <span class="scene-tag">👥 Resonance</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Thank you message">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">謝謝選擇SW的她</div>
-                <div class="content-sub">Community gratitude</div>
-                <span class="scene-tag">💝 Emotional</span>
-            </div>
-            <div class="content-card card-key" data-platform="ig" data-pillar="kv" data-full="Final Statement">
-                <div class="card-header"><span>CLOSE 17:00</span><span class="format-badge">Statement</span></div>
-                <div class="content-title">Final Statement</div>
-                <div class="content-sub">Campaign close</div>
-                <span class="scene-tag">🔚 May 15</span>
-            </div>
-        </div>
-
-        <!-- Thursday（原周末内容） -->
-        <div class="day-label">Thu</div>
         
+        <!-- Thu -->
         <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: Taikoo Place mobility">
-                <span class="pillar-tag pillar-p1">P1</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Taikoo Place</div>
-                <div class="content-sub">Urban mobility</div>
-                <span class="scene-tag">☕ Dynamic</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Promotion reflection">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Promotion Reflection</div>
-                <div class="content-sub">Career depth</div>
-                <span class="scene-tag">💭 Resonance</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: Transition energy">
-                <span class="pillar-tag pillar-p1">P1</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Transition Energy</div>
-                <div class="content-sub">New mobility</div>
-                <span class="scene-tag">🌱 Dynamic</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p2" data-full="P2 Emotional: Resilience complete">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
-                <div class="content-title">Resilience Complete</div>
-                <div class="content-sub">Growth story</div>
-                <span class="scene-tag">🦋 Emotional</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: IFC footbridge reality">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p1">
                 <span class="pillar-tag pillar-p1">P1</span>
                 <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
                 <div class="content-title">Commute Reality</div>
                 <div class="content-sub">Real mobility</div>
                 <span class="scene-tag">🚶 Commute</span>
             </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: Office endurance">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
                 <span class="pillar-tag pillar-p3">P3</span>
                 <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
                 <div class="content-title">Office Endurance</div>
@@ -807,65 +763,10 @@
                 <span class="scene-tag">💪 Comfort</span>
             </div>
         </div>
-
-        <div class="cell">
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: Ergonomic story">
-                <span class="pillar-tag pillar-p3">P3</span>
-                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
-                <div class="content-title">Ergonomic Story</div>
-                <div class="content-sub">Support tech</div>
-                <span class="scene-tag">🔬 Ergonomic</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p3" data-full="P3 Office Comfort: Product review">
-                <span class="pillar-tag pillar-p3">P3</span>
-                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
-                <div class="content-title">Product Review</div>
-                <div class="content-sub">Comfort features</div>
-                <span class="scene-tag">📋 Office</span>
-            </div>
-        </div>
-
-        <div class="cell" style="background:#f8fafc;opacity:0.5;"></div>
-
-        <!-- Friday（原周末内容） -->
-        <div class="day-label">Fri</div>
         
+        <!-- Fri -->
         <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p2" data-full="P2 Emotional: Deadline day victory">
-                <span class="pillar-tag pillar-p2">P2</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">Deadline Day</div>
-                <div class="content-sub">5:47 AM win</div>
-                <span class="scene-tag">🏆 Emotional</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p4" data-full="P4 Versatility: Day-to-night lifestyle">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Day-to-Night</div>
-                <div class="content-sub">All day wear</div>
-                <span class="scene-tag">🌅 Versatile</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p4" data-full="P4 Versatility: Central to LKF">
-                <span class="pillar-tag pillar-p4">P4</span>
-                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
-                <div class="content-title">朝早中環，夜晚蘭桂坊</div>
-                <div class="content-sub">Seamless switch</div>
-                <span class="scene-tag">🍷 Versatile</span>
-            </div>
-            <div class="content-card card-ig" data-platform="ig" data-pillar="p1" data-full="P1 Commuting: Campaign tease">
-                <span class="pillar-tag pillar-p1">P1</span>
-                <div class="card-header"><span>IG 17:00</span><span class="format-badge">Story</span></div>
-                <div class="content-title">Campaign Tease</div>
-                <div class="content-sub">Final teaser</div>
-                <span class="scene-tag">🔥 Anticipation</span>
-            </div>
-        </div>
-
-        <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p3" data-full="P3 Office Comfort: Meeting comfort">
+            <div class="content-card card-red" data-platform="red" data-pillar="p3">
                 <span class="pillar-tag pillar-p3">P3</span>
                 <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
                 <div class="content-title">Office Comfort</div>
@@ -873,9 +774,94 @@
                 <span class="scene-tag">☁️ Ergonomic</span>
             </div>
         </div>
+        
+        <!-- Sat -->
+        <div class="cell weekend empty"></div>
+        
+        <!-- Sun -->
+        <div class="cell weekend empty"></div>
 
+        <!-- Week 4 行 (May 6-12) -->
+        <div class="row-label">
+            <span>Week 4</span>
+            <span class="text-[10px] font-normal text-blue-200 mt-1">May 6-12</span>
+        </div>
+        
+        <!-- Mon -->
         <div class="cell">
-            <div class="content-card card-red" data-platform="red" data-pillar="p4" data-full="P4 Versatility: Full day documentation">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
+                <span class="pillar-tag pillar-p3">P3</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Vinnie Close-Up</div>
+                <div class="content-sub">Ergonomic support</div>
+                <span class="scene-tag">👟 Comfort</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Win Moment</div>
+                <div class="content-sub">Emotional validation</div>
+                <span class="scene-tag">✨ Resonance</span>
+            </div>
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">Submitted. 5:47 AM</div>
+                <div class="content-sub">Deadline triumph</div>
+                <span class="scene-tag">🌙 Dedication</span>
+            </div>
+        </div>
+        
+        <!-- Tue -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Styling Guide</div>
+                <div class="content-sub">All day versatility</div>
+                <span class="scene-tag">👗 Versatile</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Story</span></div>
+                <div class="content-title">Promotion Story</div>
+                <div class="content-sub">Own your success</div>
+                <span class="scene-tag">💼 Resonance</span>
+            </div>
+        </div>
+        
+        <!-- Wed -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">UGC Showcase</div>
+                <div class="content-sub">Community love</div>
+                <span class="scene-tag">👥 Resonance</span>
+            </div>
+        </div>
+        
+        <!-- Thu -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
+                <span class="pillar-tag pillar-p3">P3</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Ergonomic Story</div>
+                <div class="content-sub">Support tech</div>
+                <span class="scene-tag">🔬 Ergonomic</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p3">
+                <span class="pillar-tag pillar-p3">P3</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
+                <div class="content-title">Product Review</div>
+                <div class="content-sub">Comfort features</div>
+                <span class="scene-tag">📋 Office</span>
+            </div>
+        </div>
+        
+        <!-- Fri -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p4">
                 <span class="pillar-tag pillar-p4">P4</span>
                 <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
                 <div class="content-title">從早到晚</div>
@@ -883,24 +869,89 @@
                 <span class="scene-tag">📅 Versatile</span>
             </div>
         </div>
+        
+        <!-- Sat -->
+        <div class="cell weekend empty"></div>
+        
+        <!-- Sun -->
+        <div class="cell weekend empty"></div>
 
-        <div class="cell" style="background:#f8fafc;opacity:0.5;"></div>
-
-        <!-- Saturday（空） -->
-        <div class="day-label weekend">Sat</div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell" style="background:#f8fafc;opacity:0.5;"></div>
-
-        <!-- Sunday（空） -->
-        <div class="day-label weekend">Sun</div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell weekend cell-empty"></div>
-        <div class="cell" style="background:#f8fafc;opacity:0.5;"></div>
+        <!-- Week 5 行 (May 13-15) -->
+        <div class="row-label week5">
+            <span>Week 5</span>
+            <span class="text-[10px] font-normal text-gray-400 mt-1">May 13-15</span>
+        </div>
+        
+        <!-- Mon -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Resilience Story</div>
+                <div class="content-sub">Career transition</div>
+                <span class="scene-tag">🌱 Growth</span>
+            </div>
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>IG 12:00</span><span class="format-badge">Carousel</span></div>
+                <div class="content-title">Final Push</div>
+                <div class="content-sub">No compromise</div>
+                <span class="scene-tag">🎯 CTA</span>
+            </div>
+            <div class="content-card card-red" data-platform="red" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">記錄香港的一整天</div>
+                <div class="content-sub">Day-to-night flow</div>
+                <span class="scene-tag">📸 Versatile</span>
+            </div>
+        </div>
+        
+        <!-- Tue -->
+        <div class="cell">
+            <div class="content-card card-ig" data-platform="ig" data-pillar="p4">
+                <span class="pillar-tag pillar-p4">P4</span>
+                <div class="card-header"><span>IG 07:00</span><span class="format-badge">Reels</span></div>
+                <div class="content-title">Evening Elegance</div>
+                <div class="content-sub">Night view</div>
+                <span class="scene-tag">🌃 Night</span>
+            </div>
+            <div class="content-card card-key" data-platform="ig" data-pillar="kv">
+                <div class="card-header"><span>FINALE 17:00</span><span class="format-badge">Hero</span></div>
+                <div class="content-title">Campaign Finale</div>
+                <div class="content-sub">HK journey</div>
+                <span class="scene-tag">🎬 May 14</span>
+            </div>
+        </div>
+        
+        <!-- Wed -->
+        <div class="cell">
+            <div class="content-card card-red" data-platform="red" data-pillar="p2">
+                <span class="pillar-tag pillar-p2">P2</span>
+                <div class="card-header"><span>Red 15:00</span><span class="format-badge">Notes</span></div>
+                <div class="content-title">謝謝選擇SW的她</div>
+                <div class="content-sub">Community gratitude</div>
+                <span class="scene-tag">💝 Emotional</span>
+            </div>
+            <div class="content-card card-key" data-platform="ig" data-pillar="kv">
+                <div class="card-header"><span>CLOSE 17:00</span><span class="format-badge">Statement</span></div>
+                <div class="content-title">Final Statement</div>
+                <div class="content-sub">Campaign close</div>
+                <span class="scene-tag">🔚 May 15</span>
+            </div>
+        </div>
+        
+        <!-- Thu (Empty) -->
+        <div class="cell empty" style="background:#f8fafc;"></div>
+        
+        <!-- Fri (Empty) -->
+        <div class="cell empty" style="background:#f8fafc;"></div>
+        
+        <!-- Sat (Empty) -->
+        <div class="cell weekend empty"></div>
+        
+        <!-- Sun (Empty) -->
+        <div class="cell weekend empty"></div>
     </div>
 
     <!-- 底部图例 -->
@@ -923,17 +974,14 @@
 </div>
 
 <script>
-    // 筛选状态
     let currentFilters = {
         platform: 'all',
         pillar: 'all'
     };
 
     function filterContent(type, value) {
-        // 更新状态
         currentFilters[type] = value;
         
-        // 更新按钮UI
         document.querySelectorAll(`[data-filter-${type}]`).forEach(btn => {
             btn.classList.remove('active');
             if (btn.getAttribute(`data-filter-${type}`) === value) {
@@ -941,7 +989,6 @@
             }
         });
         
-        // 应用筛选
         applyFilters();
     }
     
@@ -952,17 +999,14 @@
             const cardPlatform = card.getAttribute('data-platform');
             const cardPillar = card.getAttribute('data-pillar');
             
-            // 检查 platform 条件
             const platformMatch = currentFilters.platform === 'all' || 
                                  cardPlatform === currentFilters.platform ||
-                                 cardPlatform === 'kv'; // KV内容始终显示
+                                 cardPlatform === 'kv';
             
-            // 检查 pillar 条件
             const pillarMatch = currentFilters.pillar === 'all' || 
                                cardPillar === currentFilters.pillar ||
-                               cardPillar === 'kv'; // KV内容始终显示
+                               cardPillar === 'kv';
             
-            // 组合条件（AND逻辑）
             if (platformMatch && pillarMatch) {
                 card.classList.remove('hidden');
             } else {
@@ -970,14 +1014,13 @@
             }
         });
         
-        // 更新单元格视觉状态
         updateCellVisibility();
     }
     
     function updateCellVisibility() {
         document.querySelectorAll('.cell').forEach(cell => {
             const visibleCards = cell.querySelectorAll('.content-card:not(.hidden)');
-            if (visibleCards.length === 0 && !cell.classList.contains('cell-empty')) {
+            if (visibleCards.length === 0 && !cell.classList.contains('empty')) {
                 cell.style.opacity = '0.2';
             } else {
                 cell.style.opacity = '1';
@@ -985,7 +1028,6 @@
         });
     }
     
-    // 触摸设备滑动提示（自动隐藏）
     let scrollHint = document.querySelector('.scroll-hint');
     if (scrollHint && window.innerWidth <= 768) {
         setTimeout(() => {
